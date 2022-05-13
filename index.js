@@ -37,12 +37,6 @@ async function run() {
             res.send(product);
         })
 
-        // Add Product
-        app.post('/products', async (req, res) => {
-            const newProduct = req.body;
-            const result = await productCollection.insertOne(newProduct);
-            res.send(result)
-        })
 
         // Delete Product
         app.delete('/products/:id', async (req, res) => {
@@ -52,7 +46,12 @@ async function run() {
             res.send(result)
         });
 
-
+        // Add Product
+        app.post('/products', async (req, res) => {
+            const newProduct = req.body;
+            const result = await productCollection.insertOne(newProduct);
+            res.send(result)
+        })
 
     } finally {
         // await client.close();
