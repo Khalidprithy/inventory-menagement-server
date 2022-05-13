@@ -1,6 +1,7 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
+const res = require('express/lib/response');
 const port = process.env.PORT || 5000;
 const app = express();
 
@@ -24,12 +25,22 @@ async function run() {
         await client.connect();
         const productCollection = client.db('inventoryApp').collection('product');
 
-        app.get('/product', async (req, res) => {
+        // Find All
+        app.get('/products', async (req, res) => {
             const query = {};
             const cursor = productCollection.find(query);
             const products = await cursor.toArray();
             res.send(products);
         });
+
+        // Find One
+        app.get('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const product = await productCollection.findOne(query);
+            res.send(product);
+        })
+
 
     } finally {
         // await client.close();
@@ -37,8 +48,6 @@ async function run() {
 }
 
 run().catch(console.dir)
-
-
 
 
 app.get('/', (req, res) => {
