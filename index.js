@@ -53,6 +53,22 @@ async function run() {
             res.send(result)
         })
 
+        // Update product
+        app.put('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const updatedProduct = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    quantity: updatedProduct.quantity,
+                }
+            };
+            const result = await productCollection.updateOne(filter, updatedDoc, options);
+            res.send(result)
+
+        })
+
     } finally {
         // await client.close();
     }
@@ -68,3 +84,7 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log('Listening to inventory server', port)
 })
+
+
+// https://protected-journey-17273.herokuapp.com/products
+// To update - git add commit push + git push heroku main
