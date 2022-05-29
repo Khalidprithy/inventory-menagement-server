@@ -1,5 +1,6 @@
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
+// const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const res = require('express/lib/response');
 const port = process.env.PORT || 5000;
@@ -20,6 +21,16 @@ async function run() {
     try {
         await client.connect();
         const productCollection = client.db('inventoryApp').collection('product');
+
+
+        // Login Auth
+
+        // app.post('/login', async (req, res) => {
+        //     const user = req.body;
+        //     const accessToken = jwt.sign();
+        // })
+
+
 
         // Find All
         app.get('/products', async (req, res) => {
@@ -51,6 +62,14 @@ async function run() {
             const newProduct = req.body;
             const result = await productCollection.insertOne(newProduct);
             res.send(result)
+        })
+        // Find added Product
+        app.get('/product', async (req, res) => {
+            const email = req.query.email;
+            console.log(email)
+            const query = { email: email }
+            const result = await productCollection.find(query).toArray();
+            return res.send(result)
         })
 
         // Update product
