@@ -17,17 +17,16 @@ app.use(express.json());
 function verifyJWT(req, res, next) {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-        return res.status(401).send({ message: 'unauthorized access' });
+        return res.status(401).send({ message: 'UnAuthorized access' });
     }
     const token = authHeader.split(' ')[1];
-    jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
+    jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
         if (err) {
-            return res.status(403).send({ message: 'Forbidden access' });
+            return res.status(403).send({ message: 'Forbidden access' })
         }
-        console.log('decoded', decoded);
         req.decoded = decoded;
         next();
-    })
+    });
 }
 
 
@@ -38,7 +37,6 @@ async function run() {
     try {
         await client.connect();
         const productCollection = client.db('inventoryApp').collection('product');
-
 
         // Login Auth
 
@@ -75,6 +73,13 @@ async function run() {
             const result = await productCollection.deleteOne(query);
             res.send(result)
         });
+        // Delete Product
+        app.delete('/product/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const result = purchaseCollection.deleteOne(query);
+            res.send(result);
+        })
 
         // Add Product
         app.post('/products', async (req, res) => {
@@ -83,17 +88,11 @@ async function run() {
             res.send(result)
         })
         // Find added Product
-        app.get('/product', verifyJWT, async (req, res) => {
-            const decodedEmail = req.decoded.email;
+        app.get('/product', async (req, res) => {
             const email = req.query.email;
-            if (email === decodedEmail) {
-                const query = { email: email }
-                const result = await productCollection.find(query).toArray();
-                res.send(result)
-            }
-            else {
-                res.status(403).send({ message: 'forbidden Access' })
-            }
+            const query = { email: email }
+            const result = await productCollection.find(query).toArray();
+            res.send(result)
         })
 
         // Update product
